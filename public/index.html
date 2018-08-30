@@ -17,6 +17,14 @@
     <title>Caren Lierz Portfolio</title>
     <link href="Styles.css" type="text/css" rel="stylesheet" />
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <!-- Load PayPal's checkout.js Library. -->
+    <script src="https://www.paypalobjects.com/api/checkout.js" data-version-4 log-level="warn"></script>
+
+    <!-- Load the client component. -->
+    <script src="https://js.braintreegateway.com/web/3.36.0/js/client.min.js"></script>
+
+    <!-- Load the PayPal Checkout component. -->
+<script src="https://js.braintreegateway.com/web/3.36.0/js/paypal-checkout.min.js"></script>
 </head>
 <body>
 
@@ -82,7 +90,7 @@
         </div>
     </div>
 
-
+    <div id="paypal-button"></div>
 <!-- About Section -->
 <div class="w3-container w3-padding-32" id="about">
         <h3 class="w3-border-bottom w3-border-light-grey w3-padding-16">About</h3>
@@ -104,3 +112,66 @@
       </div>
 
 </body>
+<script>
+// Create a client.
+braintree.client.create({
+  authorization: 'sandbox_d5nght9x_2hxkjv924yk8xgn4'
+}, function (clientErr, clientInstance) {
+
+  // Stop if there was a problem creating the client.
+  // This could happen if there is a network error or if the authorization
+  // is invalid.
+  if (clientErr) {
+    console.error('Error creating client:', clientErr);
+    return;
+  }
+
+  // Create a PayPal Checkout component.
+  braintree.paypalCheckout.create({
+    client: clientInstance
+  }, function (paypalCheckoutErr, paypalCheckoutInstance) {
+
+    // Stop if there was a problem creating PayPal Checkout.
+    // This could happen if there was a network error or if it's incorrectly
+    // configured.
+    if (paypalCheckoutErr) {
+      console.error('Error creating PayPal Checkout:', paypalCheckoutErr);
+      return;
+    }
+
+    // Set up PayPal with the checkout.js library
+    paypal.Button.render({
+      env: 'sandbox', // or 'sandbox'
+
+      payment: function () {
+        return paypalCheckoutInstance.createPayment({
+          flow: 'vault'
+          // Your PayPal options here. For available options, see
+          // http://braintree.github.io/braintree-web/current/PayPalCheckout.html#createPayment
+        });
+      },
+
+      onAuthorize: function (data, actions) {
+        return paypalCheckoutInstance.tokenizePayment(data, function (err, payload) {
+          // Submit `payload.nonce` to your server.
+        });
+      },
+
+      onCancel: function (data) {
+        console.log('checkout.js payment cancelled', JSON.stringify(data, 0, 2));
+      },
+
+      onError: function (err) {
+        console.error('checkout.js error', err);
+      }
+    }, '#paypal-button').then(function () {
+      // The PayPal button will be rendered in an html element with the id
+      // `paypal-button`. This function will be called when the PayPal button
+      // is set up and ready to be used.
+    });
+
+  });
+
+});
+</script>
+</html>
