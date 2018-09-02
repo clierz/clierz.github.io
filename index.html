@@ -90,7 +90,7 @@
         </div>
     </div>
 
-    <div id="paypal-button"></div>
+    
 <!-- About Section -->
 <div class="w3-container w3-padding-32" id="about">
         <h3 class="w3-border-bottom w3-border-light-grey w3-padding-16">About</h3>
@@ -111,8 +111,17 @@
         
       </div>
 
+<!-- PayPal Section -->
+      <h4 class="w3-border-bottom w3-border-light-grey w3-padding-16">Donate to my Continuing Education</h4>
+      <div id="paypal-button"></div>
 </body>
+
+
+
+
 <script>
+
+
 // Create a client.
 braintree.client.create({
   authorization: 'sandbox_d5nght9x_2hxkjv924yk8xgn4'
@@ -143,9 +152,19 @@ braintree.client.create({
     paypal.Button.render({
       env: 'sandbox', // or 'sandbox'
 
+      style: {
+
+          label: 'paypal',
+          tagline: 'false',
+          
+      },
+    
+
       payment: function () {
         return paypalCheckoutInstance.createPayment({
-          flow: 'vault'
+          flow: 'vault',
+          //intent: 'sale',
+          //amount: '25'
           // Your PayPal options here. For available options, see
           // http://braintree.github.io/braintree-web/current/PayPalCheckout.html#createPayment
         });
